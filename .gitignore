@@ -1,0 +1,19 @@
+# macOS
+.DS_Store
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build / cache
+dist/
+.hyperframes/
+.cache/
+*.tmp
+*.log
+
+# Editor
+.vscode/
+.idea/

@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920, height=1080">
+<title>FAKER · five-star intro</title>
+<link rel="stylesheet" href="style.css">
+<script src="assets/gsap.min.js"></script>
+</head>
+<body>
+<div id="stage" data-composition-id="main" data-start="0" data-duration="5" data-fps="60" data-width="1920" data-height="1080">
+ <div id="scene" class="clip" data-start="0" data-duration="5" data-track-index="0">
+  <div id="background-fallback"></div>
+  <canvas id="shader-bg" width="1920" height="1080"></canvas>
+  <div id="desktop-space" data-layout-allow-overflow="true"></div>
+  <div id="desktop-pastel" data-layout-allow-overflow="true"></div>
+  <svg id="emblem" viewBox="0 0 1000 480" aria-label="T1 emblem">
+   <defs>
+    <linearGradient id="emblem-face" x1=".1" y1="0" x2=".62" y2="1" gradientUnits="objectBoundingBox"><stop offset="0" stop-color="#030002"/><stop offset=".4" stop-color="#0a0003"/><stop offset=".7" stop-color="#50001c"/><stop offset="1" stop-color="#c00042"/></linearGradient>
+    <linearGradient id="emblem-edge" x1="0" y1="0" x2=".4" y2="1"><stop stop-color="#3d0015"/><stop offset=".48" stop-color="#90002f"/><stop offset="1" stop-color="#510025"/></linearGradient>
+    <linearGradient id="emblem-lip"><stop stop-color="#21000e"/><stop offset=".6" stop-color="#8f0035"/><stop offset="1" stop-color="#170007"/></linearGradient>
+    <g id="t1-paths">
+     <path d="M14 39 L116 13 L778 13 L812 30 L830 13 L922 13 L986 39 L851 83 Q818 119 763 124 L503 430 Q453 413 449 373 Q447 351 461 326 L604 126 L167 126 Q71 126 14 39Z"/>
+     <path d="M159 145 L590 145 L554 191 L226 191 Q187 189 159 145Z"/>
+     <path d="M241 207 L541 207 L505 251 L310 251 Q267 251 241 207Z"/>
+     <path d="M323 269 L493 269 L456 311 L388 311 Q349 309 323 269Z"/>
+     <path d="M857 43 L986 39 L750 430 Q708 413 698 377 L669 301 Q663 281 677 260 L770 128 L739 128 Q803 108 857 43Z"/>
+    </g>
+   </defs>
+   <use href="#t1-paths" fill="url(#emblem-edge)" transform="translate(0,-14)"/>
+   <use href="#t1-paths" fill="url(#emblem-face)"/>
+   <path d="M14 39 L116 13 L778 13 L812 30 L830 13 L922 13 L986 39 L856 39 L814 42 L773 37 L119 37Z" fill="url(#emblem-lip)"/>
+   <path d="M159 145 L590 145 L579 159 L174 159Z M241 207 L541 207 L529 220 L253 220Z M323 269 L493 269 L482 282 L335 282Z" fill="url(#emblem-lip)"/>
+  </svg>
+  <div id="star-reflections" aria-hidden="true"></div>
+  <div id="stars" aria-label="Five championship stars"></div>
+  <div id="pastel-dust" aria-hidden="true"></div>
+  <div id="title-lockup" aria-label="FAKER">
+   <svg id="title-pedestal" viewBox="0 0 1120 140" aria-hidden="true"><defs><linearGradient id="pedestal-side"><stop stop-color="#8971ed"/><stop offset=".6" stop-color="#e85ddd"/><stop offset="1" stop-color="#9b60de"/></linearGradient></defs><path d="M60 28 H1055 Q1021 105 958 105 H165 Q103 105 60 28Z" fill="url(#pedestal-side)"/><path d="M38 12 H1075 Q1045 82 963 82 H154 Q83 82 38 12Z" fill="#fff"/></svg>
+   <svg id="faker-word" viewBox="0 0 1120 350" aria-hidden="true"><defs>
+    <linearGradient id="title-side" x1="0" y1="0" x2="1" y2=".3"><stop stop-color="#6c62dd"/><stop offset=".32" stop-color="#d747d3"/><stop offset=".56" stop-color="#f000bb"/><stop offset="1" stop-color="#6a83d6"/></linearGradient>
+    <linearGradient id="title-stroke" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#6f89da"/><stop offset=".45" stop-color="#d9229c"/><stop offset=".68" stop-color="#e700d7"/><stop offset="1" stop-color="#7fbcd2"/></linearGradient>
+   </defs><g id="letters"></g></svg>
+   <svg id="title-awards" viewBox="0 0 300 70" aria-hidden="true"><defs><linearGradient id="award-color"><stop stop-color="#9251e3"/><stop offset=".5" stop-color="#e323a5"/><stop offset="1" stop-color="#c46bdb"/></linearGradient></defs><g fill="#fff" stroke="url(#award-color)" stroke-width="4"><circle cx="40" cy="30" r="15"/><circle cx="95" cy="30" r="15"/><path d="M150 8 L157 23 L173 25 L161 37 L164 54 L150 46 L136 54 L139 37 L127 25 L143 23Z"/><circle cx="205" cy="30" r="15"/><circle cx="260" cy="30" r="15"/></g></svg>
+  </div>
+  <div id="flare-wash" aria-hidden="true"></div>
+ </div>
+</div>
+<script src="assets/backdrop.js"></script>
+<script>
+window.__timelines = window.__timelines || {};
+window.__timelines["main"] = gsap.timeline({ paused: true });
+</script>
+<script src="animation.js"></script>
+</body>
+</html>
