@@ -4,6 +4,9 @@
  */
 (() => {
 'use strict';
+// The player may execute this file before the composition markup is parsed, so build lazily.
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', build); else build();
+function build() {
 const NS='http://www.w3.org/2000/svg';
 const starPath='M73 6 L90 50 L139 52 L101 82 L114 129 L73 101 L32 129 L45 82 L7 52 L56 50Z';
 function starSVG(id){return `<svg viewBox="0 0 146 150"><defs><linearGradient id="star-side-${id}" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#f3305b"/><stop offset=".45" stop-color="#b60040"/><stop offset="1" stop-color="#5b001f"/></linearGradient></defs><path d="${starPath}" transform="translate(0,16)" fill="url(#star-side-${id})" stroke="#e44d68" stroke-width="1.4"/><path d="M7 52 L7 68 L45 98 L45 82Z M32 129 L32 145 L73 117 L73 101Z M114 129 L114 145 L101 98 L101 82Z M139 52 L139 68 L101 98 L101 82Z" fill="#ab003b"/><path d="${starPath}" fill="#fff"/></svg>`}
@@ -42,7 +45,9 @@ const glyphs=[
  {d:'M15 0H100Q179 0 185 62Q189 111 157 135L188 215Q195 232 177 232H137Q122 232 117 218L94 159H77V218Q77 232 62 232H16Q1 232 1 217V16Q1 0 15 0ZM77 58V107H98Q117 107 117 83Q117 58 98 58Z',x:850,y:16,r:4}
 ];
 const letters=document.getElementById('letters');glyphs.forEach((g,i)=>{const group=document.createElementNS(NS,'g');group.id='letter-'+i;group.classList.add('letter');group.setAttribute('transform',`translate(${g.x},${g.y}) rotate(${g.r},95,120)`);group.innerHTML=`<path class="letter-shadow" fill-rule="evenodd" d="${g.d}" transform="translate(19,43)"/>`+Array.from({length:22},(_,j)=>`<path class="letter-side" fill-rule="evenodd" d="${g.d}" transform="translate(${(22-j)*.68},${22-j})"/>`).join('')+`<path class="letter-front" fill-rule="evenodd" d="${g.d}"/>`;letters.appendChild(group)});
-const tl=window.__timelines.main;
+// Created here rather than in an inline <script>: inline blocks are stripped in the render sandbox.
+window.__timelines=window.__timelines||{};
+const tl=window.__timelines.main||(window.__timelines.main=gsap.timeline({paused:true}));
 tl.eventCallback('onUpdate',()=>{if(window.renderBackdrop)window.renderBackdrop(tl.time())});
 // Opening push-in makes the upper edge of the dark red emblem the stars' landing shelf.
 tl.fromTo('#emblem',{scale:1,x:0,y:0},{scale:1.92,x:0,y:190,duration:.28,ease:'power2.out'},0)
@@ -78,4 +83,7 @@ tl.fromTo('#title-awards',{opacity:0,y:-12,scale:.6},{opacity:1,y:0,scale:1,dura
 tl.to('#title-lockup',{y:-3,duration:.7,ease:'sine.inOut'},4.3);
 tl.to({}, {duration:.001},4.999);
 tl.seek(0);if(window.renderBackdrop)window.renderBackdrop(0);
+// Frame-accurate seeking survives even if the player cannot resolve __timelines itself.
+window.addEventListener('hf-seek',e=>{const t=e.detail&&e.detail.time;if(typeof t==='number')tl.time(t);});
+}
 })();

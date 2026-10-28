@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "npx --yes hyperframes@0.7.109 preview",
     "check": "npx --yes hyperframes@0.7.109 check",
-    "render": "npx --yes hyperframes@0.7.109 render",
+    "render": "npx --yes hyperframes@0.7.109 render --quality high --output output/faker-five-star-intro.mp4",
+    "render:draft": "npx --yes hyperframes@0.7.109 render --quality draft --output output/draft.mp4",
     "publish": "npx --yes hyperframes@0.7.109 publish"
   }
 }

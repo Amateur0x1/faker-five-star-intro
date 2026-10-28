@@ -9,6 +9,7 @@ pnpm-debug.log*
 
 # Build / cache
 dist/
+output/
 .hyperframes/
 .cache/
 *.tmp
