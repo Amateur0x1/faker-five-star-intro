@@ -1,0 +1,44 @@
+{
+  "bgm": {
+    "mode": "none"
+  },
+  "lines": [
+    {
+      "id": "t1-stars",
+      "text": "",
+      "sfx": [
+        "impact-bass-1",
+        "whoosh",
+        "sparkle"
+      ]
+    },
+    {
+      "id": "star-arc-desktop",
+      "text": "",
+      "sfx": [
+        "whoosh-short",
+        "glitch-3",
+        "click-soft",
+        "click",
+        "ping"
+      ]
+    },
+    {
+      "id": "flare-collapse",
+      "text": "",
+      "sfx": [
+        "whoosh-cinematic",
+        "impact-bass-2"
+      ]
+    },
+    {
+      "id": "faker-title",
+      "text": "",
+      "sfx": [
+        "pop",
+        "chime",
+        "sparkle"
+      ]
+    }
+  ]
+}

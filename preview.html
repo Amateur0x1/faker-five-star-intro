@@ -5,12 +5,57 @@
 </style></head><body><main>
 <header><h1>FAKER / INTRO STUDY</h1><span class="tag">HTML + SVG + GSAP + GLSL · 1920 × 1080 · 5.0s</span></header>
 <div id="viewport"><iframe id="scene" src="index.html" title="FAKER 动画"></iframe></div>
-<div class="controls"><button id="play">播放</button><button id="restart">重播</button><input id="seek" aria-label="动画时间" type="range" min="0" max="5" step="0.001" value="0"><span id="time">0.00 / 5.00s</span><select id="speed" aria-label="播放速度"><option value="0.25">0.25×</option><option value="0.5">0.5×</option><option value="1" selected>1×</option></select></div>
-<footer><span>止于 FAKER 标题 · 无音轨</span><span>空格播放 / 暂停；拖动进度条逐帧检查</span><a href="reference/contact-sheet.jpg" target="_blank">原片分镜</a></footer>
+<div class="controls"><button id="play">播放</button><button id="restart">重播</button><button id="mute">音效：开</button><input id="seek" aria-label="动画时间" type="range" min="0" max="5" step="0.001" value="0"><span id="time">0.00 / 5.00s</span><select id="speed" aria-label="播放速度"><option value="0.25">0.25×</option><option value="0.5">0.5×</option><option value="1" selected>1×</option></select></div>
+<footer><span>止于 FAKER 标题 · 含同步音效</span><span>空格播放 / 暂停；拖动进度条逐帧检查</span><a href="reference/contact-sheet.jpg" target="_blank">原片分镜</a></footer>
 </main><script>
-const frame=document.getElementById('scene'),viewport=document.getElementById('viewport'),slider=document.getElementById('seek'),play=document.getElementById('play');let timeline;
+const frame=document.getElementById('scene'),viewport=document.getElementById('viewport'),slider=document.getElementById('seek'),play=document.getElementById('play'),muteBtn=document.getElementById('mute');let timeline,audioCtx,cues=[],activeNodes=[],muted=false;const bufCache=new Map();
 function resize(){frame.style.transform='scale('+viewport.clientWidth/1920+')';}new ResizeObserver(resize).observe(viewport);resize();
+function stopAudio(){while(activeNodes.length){try{activeNodes.pop().stop();}catch(e){}}}
+function loadBuffer(src){
+ if(bufCache.has(src))return bufCache.get(src);
+ const p=(src.startsWith('data:')?Promise.resolve().then(()=>{const b=atob(src.split(',')[1]),u=new Uint8Array(b.length);for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u.buffer;}):fetch(src).then(r=>r.arrayBuffer())).then(ab=>audioCtx.decodeAudioData(ab));
+ bufCache.set(src,p);return p;
+}
+async function ensureAudio(){
+ if(!audioCtx)audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+ if(audioCtx.state==='suspended')await audioCtx.resume();
+ await Promise.all(cues.map(async c=>{if(!c.buffer)c.buffer=await loadBuffer(c.src);}));
+}
+function syncAudio(){
+ stopAudio();
+ if(!timeline||timeline.paused()||muted||!audioCtx)return;
+ const t0=timeline.time(),scale=timeline.timeScale()||1,now=audioCtx.currentTime;
+ for(const c of cues){
+  if(!c.buffer||t0>=c.start+c.duration)continue;
+  const src=audioCtx.createBufferSource(),gain=audioCtx.createGain();
+  src.buffer=c.buffer;src.playbackRate.value=scale;gain.gain.value=c.volume;
+  src.connect(gain).connect(audioCtx.destination);
+  if(t0<=c.start){src.start(now+(c.start-t0)/scale,c.mediaStart,c.duration);}
+  else{const elapsed=t0-c.start;src.start(now,c.mediaStart+elapsed,Math.max(0.01,c.duration-elapsed));}
+  activeNodes.push(src);
+ }
+}
 function update(){if(!timeline)return;const t=timeline.time();slider.value=t;document.getElementById('time').textContent=t.toFixed(2)+' / 5.00s';play.textContent=timeline.paused()?'播放':'暂停';}
-frame.onload=()=>{try{timeline=frame.contentWindow.__timelines.main;const original=timeline.eventCallback('onUpdate');timeline.eventCallback('onUpdate',()=>{if(original)original();update();});timeline.eventCallback('onComplete',()=>{timeline.pause();update();});update();}catch(e){document.getElementById('time').textContent='请通过本地服务器打开';console.error(e);}};
-function toggle(){if(!timeline)return;if(timeline.time()>=4.999)timeline.restart();else timeline.paused()?timeline.play():timeline.pause();update();}play.onclick=toggle;document.getElementById('restart').onclick=()=>{if(timeline)timeline.restart();update();};slider.oninput=()=>{if(timeline)timeline.pause().seek(+slider.value,false);update();};document.getElementById('speed').onchange=e=>{if(timeline)timeline.timeScale(+e.target.value);};document.addEventListener('keydown',e=>{if(e.code==='Space'&&e.target!==slider){e.preventDefault();toggle();}});
+frame.onload=()=>{try{
+ timeline=frame.contentWindow.__timelines.main;
+ cues=Array.from(frame.contentDocument.querySelectorAll('audio[data-start]')).map(el=>({
+  src:el.getAttribute('src'),
+  start:+el.dataset.start||0,
+  duration:+el.dataset.duration||1,
+  mediaStart:+el.dataset.mediaStart||0,
+  volume:+el.dataset.volume||0.35,
+  buffer:null,loading:null
+ })).map(c=>({...c,src:c.src.startsWith('data:')?c.src:new URL(c.src,frame.contentDocument.baseURI).href}));
+ const original=timeline.eventCallback('onUpdate');
+ timeline.eventCallback('onUpdate',()=>{if(original)original();update();});
+ timeline.eventCallback('onComplete',()=>{stopAudio();timeline.pause();update();});
+ update();
+}catch(e){document.getElementById('time').textContent='请通过本地服务器打开';console.error(e);}};
+async function toggle(){if(!timeline)return;await ensureAudio();if(timeline.time()>=4.999){timeline.restart();syncAudio();}else if(timeline.paused()){timeline.play();syncAudio();}else{timeline.pause();stopAudio();}update();}
+play.onclick=toggle;
+document.getElementById('restart').onclick=async()=>{if(!timeline)return;await ensureAudio();timeline.restart();syncAudio();update();};
+muteBtn.onclick=async()=>{muted=!muted;muteBtn.textContent=muted?'音效：关':'音效：开';if(!muted&&timeline&&!timeline.paused()){await ensureAudio();syncAudio();}else{stopAudio();}};
+slider.oninput=()=>{if(timeline){stopAudio();timeline.pause().seek(+slider.value,false);update();}};
+document.getElementById('speed').onchange=e=>{if(timeline){timeline.timeScale(+e.target.value);if(!timeline.paused())syncAudio();}};
+document.addEventListener('keydown',e=>{if(e.code==='Space'&&e.target!==slider){e.preventDefault();toggle();}});
 </script></body></html>
